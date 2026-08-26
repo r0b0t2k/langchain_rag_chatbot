@@ -1,0 +1,7 @@
+langchain
+langchain-google
+langchain-community
+chromadb
+python-dotenv
+langsmith
+langchain_google_genai
