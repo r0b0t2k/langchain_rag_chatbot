@@ -12,6 +12,7 @@ import os
 
 load_dotenv()
 GEMINI_API_KEY=os.environ["GEMINI_API_KEY"]
+GOOGLE_API_KEY=os.environ["GOOGLE_API_KEY"]
 GEMINI_PROJECT_NAME=os.environ["GEMINI_PROJECT_NUMBER"]
 GEMINI_PROJECT_NUMBER=os.environ["GEMINI_PROJECT_NUMBER"]
 LANGSMITH_API_KEY=os.environ["LANGSMITH_API_KEY"]
@@ -36,9 +37,33 @@ def load_documents(docs_dir: str = "./docs"):
     print(f"Loaded {len(documents)} documents")
     return documents
 
-def split_documents(documents,)
+def split_documents(documents, chunk_size=1000, chunk_overlap=200):
+    """Split documents into chunks for indexing."""
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        separators=["\n\n", "\n", ". ", " ", ""]
+    )
+    chunks = splitter.split_documents(documents)
+    print = (f"Split into {len(chunks)} chunks")
+    return chunks
+
+def create_vectorstore(chunks, persist_dir: str = "./vectorstore"):
+    """Create a Chroma Vector Store from document chunks."""
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
+    vectorstore = Chroma.from_documents(
+        documents=chunks,
+        embedding=embeddings,
+        persist_directory=persist_dir,
+    )
+    print(
+        f"Created vector store with {vectorstore._collection.count()} vectors"
+    )
+    return vectorstore
 
 
 if __name__ == "__main__":
     docs = load_documents()
-    print(docs)
+    chunks = split_documents(docs)
+    vectorstore = create_vectorstore(chunks)
+#    print(docs)
